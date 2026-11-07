@@ -9,4 +9,8 @@ def decidir_velocidade(distancia):
     Use a distância recebida; não use contagem de tempo ou posição fixa.
     """
     # TODO: substitua pela estratégia do grupo.
-    return 0.0
+    
+    if distancia > 0.40:
+        return 0.4
+    else:
+        return 0.0
