@@ -1,0 +1,207 @@
+<!doctype html><html lang="pt-BR"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Estacionamento de precisão — guia dos alunos</title><style>
+body{font:17px/1.65 system-ui,sans-serif;color:#243244;background:#f3f5f7;margin:0}
+header{background:#123d50;color:white;padding:45px max(6vw,24px)}
+header p{color:#b8ded8}main{max-width:1000px;margin:auto;padding:30px 24px}
+nav{display:grid;gap:9px;background:white;padding:24px;border-radius:12px}
+section{background:white;border-radius:12px;padding:28px;margin:24px 0}
+h1,h2,h3{line-height:1.25;color:#123d50}header h1{color:white}
+h1{font-size:30px}h2{font-size:23px;margin-top:32px}h3{font-size:19px}
+a{color:#086e79}pre{background:#152c3c;color:#e4f1ef;padding:18px;overflow:auto;border-radius:8px;line-height:1.5;font-size:14px}
+code{font-family:ui-monospace,monospace}p code,td code{background:#edf2f5;padding:2px 4px;overflow-wrap:anywhere}
+table{border-collapse:collapse;width:100%;font-size:14px;display:block;overflow:auto}td{border:1px solid #d9e2e7;padding:10px;vertical-align:top}tr:first-child{background:#eaf3f4;font-weight:bold}
+.item{padding-left:14px;margin:7px 0}@media print{body{background:white;font-size:10pt}header{padding:12px;background:white;color:#123d50}header h1{color:#123d50}header p{color:#243244}nav{display:none}section{padding:0;break-before:page}pre{white-space:pre-wrap;color:#123d50;background:#eee}a{color:inherit}}
+</style><header><p>FUNDAMENTOS DE PROGRAMAÇÃO · GAZEBO + PYTHON</p><h1>Estacionamento de precisão — guia dos alunos</h1><p>Parar a 30 cm · tolerância de 3 cm · 2 segundos parado</p></header><main><nav><a href="#cap0">1. Instalação, do zero</a><a href="#cap1">2. Primeira execução e operação</a><a href="#cap2">Desafio 01 — Estacionamento de precisão</a><a href="#cap3">Ficha do grupo — Estacionamento de precisão</a></nav><section id="cap0"><h1>1. Instalação, do zero</h1>
+<h2>O que você vai usar</h2>
+<p>O <strong>Gazebo</strong> simula o robô, a parede, o movimento e o sensor. O <strong>Python</strong> executa a estratégia escrita pelos alunos. Um arquivo <strong>SDF</strong> descreve o cenário. Não é necessário instalar ROS para esta atividade.</p>
+<p>Adotamos <strong>Gazebo Harmonic</strong> para fixar a combinação de versões: Sim 8, Transport 13 e mensagens 10. Existem versões posteriores; misturar as bibliotecas de versões diferentes pode impedir os programas de funcionar.</p>
+<p>Como os grupos usarão computadores próprios, o caminho comum é <strong>Docker + navegador</strong>. O Docker executa um Ubuntu preparado; o navegador mostra a tela desse Ubuntu. Não se trata de uma versão web do Gazebo: a simulação continua rodando localmente no computador.</p>
+<p>Como referência de planejamento, reserve 4 núcleos, 6 GB de memória para o Docker e aproximadamente 15 GB livres. São estimativas para este pacote, não requisitos oficiais universais. Em computadores com 8 GB de RAM total pode haver lentidão. O primeiro download exige internet; a imagem pode ocupar vários GB. Faça a instalação antes da aula.</p>
+<h2>Opção A — Mac, Windows ou Linux com Docker</h2>
+<h3>A1. Instalar e abrir o Docker</h3>
+<p class="item">• <strong>Mac:</strong> baixe o Docker Desktop para o processador correto, Apple Silicon (M1/M2/M3/M4 etc.) ou Intel. Arraste o aplicativo para Aplicativos e abra. Siga a <a href="https://docs.docker.com/desktop/setup/install/mac-install/">instalação oficial para Mac</a>.</p>
+<p class="item">• <strong>Windows:</strong> instale o Docker Desktop com o mecanismo WSL 2 e contêineres Linux. Se o instalador pedir atualização do WSL ou reinício, conclua essas etapas. Siga a <a href="https://docs.docker.com/desktop/setup/install/windows-install/">instalação oficial para Windows</a>. Se necessário, execute <code>wsl --install</code> em PowerShell como administrador e reinicie antes de continuar.</p>
+<p class="item">• <strong>Linux:</strong> use <a href="https://docs.docker.com/engine/install/">Docker Engine e o plugin Compose</a> ou Docker Desktop. O usuário precisa conseguir executar <code>docker info</code>.</p>
+<p>Abra o aplicativo Docker Desktop e espere informar que o mecanismo está funcionando. Ele precisa continuar aberto durante a atividade. No Mac deste professor foi encontrado um comando Docker antigo, mas não o aplicativo Docker Desktop em Aplicativos; o Compose também estava indisponível. Instale ou reinstale o Docker Desktop antes de seguir.</p>
+<h3>A2. Abrir um terminal na pasta correta</h3>
+<p>Extraia o ZIP antes de executar. Evite OneDrive/iCloud e pastas de rede se houver problemas de compartilhamento; prefira uma pasta local. Não execute diretamente de dentro do ZIP.</p>
+<p class="item">• <strong>Windows:</strong> abra a pasta no Explorador, clique na barra de endereço, digite <code>powershell</code> e pressione Enter.</p>
+<p class="item">• <strong>Mac:</strong> abra Terminal, digite <code>cd </code> com um espaço, arraste a pasta extraída para a janela e pressione Enter.</p>
+<p class="item">• <strong>Linux:</strong> abra um terminal na pasta extraída pelo gerenciador de arquivos.</p>
+<p>A pasta correta contém <code>compose.yaml</code>, <code>README.md</code> e a pasta <code>alunos</code>.</p>
+<p>Confira:</p>
+<pre><code>docker info
+docker compose version</code></pre>
+<p>Se <code>docker compose version</code> informar que compose não é um comando, instale ou reinstale o Docker Desktop. Se aparecer que não consegue conectar ao mecanismo, abra o Docker Desktop e aguarde. Não adianta repetir a construção antes de ele funcionar.</p>
+<h3>A3. Preparar o ambiente</h3>
+<pre><code>docker compose up -d --build</code></pre>
+<p>Este comando baixa o Ubuntu e instala o Gazebo <strong>dentro do contêiner</strong>. Na primeira vez demora mais. Aguarde voltar ao prompt sem mensagem de erro. Em dias posteriores, basta <code>docker compose up -d</code>.</p>
+<p>Confira:</p>
+<pre><code>docker compose ps
+docker compose exec sim gz sim --versions
+docker compose exec sim /usr/bin/python3 -c &quot;from gz.transport13 import Node; from gz.msgs10.laserscan_pb2 import LaserScan; print(&#x27;Python e Gazebo disponíveis&#x27;)&quot;</code></pre>
+<p>O serviço <code>sim</code> deve estar em execução. A versão do Sim deve ser 8.x. O terceiro comando deve imprimir a mensagem final sem erro de importação.</p>
+<h3>A4. Abrir a tela</h3>
+<p>Acesse <a href="http://localhost:6080/vnc.html?autoconnect=true&amp;resize=scale">a tela local do ambiente</a>. Se necessário, clique em Connect. Inicialmente aparece uma área de trabalho simples; o Gazebo só abre no próximo guia.</p>
+<p>O pacote usa a arquitetura nativa do computador: ARM64 em Macs Apple Silicon e AMD64 em computadores Intel/AMD. O repositório do Gazebo oferece os pacotes necessários para ambas as arquiteturas. A renderização é feita por software para evitar exigir repasse da placa gráfica. Isso precisa ser testado em cada perfil de máquina antes da aula; não há garantia de desempenho uniforme. A versão inicial forçava AMD64 e apresentou travamento da janela no Mac Apple Silicon; essa configuração foi corrigida.</p>
+<p>O acesso da tela fica restrito ao próprio computador (<code>127.0.0.1</code>). A pasta extraída é compartilhada com o ambiente: edite <code>alunos/solucao.py</code> no seu editor habitual e salve; não é necessário reconstruir a imagem a cada edição.</p>
+<h2>Opção B — Ubuntu 24.04 em computador Intel/AMD</h2>
+<p>É a alternativa com menos camadas e a primeira escolha para um laboratório Linux. A instalação direta deste pacote exige <strong>Ubuntu 24.04 amd64</strong>. Não execute o instalador no macOS, PowerShell, Ubuntu ARM ou outra distribuição.</p>
+<p>No terminal, dentro da pasta do pacote:</p>
+<pre><code>bash scripts/instalar-ubuntu.sh
+gz sim --versions
+/usr/bin/python3 -c &quot;from gz.transport13 import Node; print(&#x27;Integração disponível&#x27;)&quot;</code></pre>
+<p>O instalador pedirá sua senha para instalar os pacotes. A senha não aparece enquanto você digita. Ele usa o repositório oficial do Gazebo; confira os comandos em <code>scripts/instalar-ubuntu.sh</code> se desejar.</p>
+<p>Nesse caminho, substitua os comandos Docker do próximo guia por:</p>
+<pre><code>bash scripts/iniciar.sh
+bash scripts/executar.sh</code></pre>
+<p>Cada comando deve ficar em seu próprio terminal. O Gazebo abre como aplicativo, sem navegador.</p>
+<h2>Instalação nativa no Mac</h2>
+<p>A documentação do Harmonic fornece instalação por Homebrew com <code>brew tap osrf/simulation</code>, <code>brew trust osrf/simulation</code> e <code>brew install gz-harmonic</code>. Ela anuncia pacotes prontos para macOS Sequoia em Apple Silicon e descreve o servidor <code>gz sim -s</code>; em outras versões pode haver compilação longa. O Mac consultado usa macOS 26.6.2, fora dessa combinação anunciada. Por isso, <strong>essa não é a rota principal deste pacote</strong>. Os scripts de instalação e execução direta aqui são para Ubuntu; não presumem que os bindings Python do Homebrew estejam configurados.</p>
+<h2>Se um computador não conseguir executar</h2>
+<p>Faça o piloto antes de atribuir nota. Primeiro tente Ubuntu nativo em uma máquina disponível. Se um grupo precisar usar um computador de colega, todos ainda devem participar da edição, dos experimentos e da explicação. Evite transformar problemas de instalação em critério de desempenho acadêmico.</p>
+<p>No fim do trabalho com Docker:</p>
+<pre><code>docker compose down</code></pre>
+<p>Isso encerra o ambiente. Os arquivos de código e os resultados salvos na pasta permanecem no computador.</p></section><section id="cap1"><h1>2. Primeira execução e operação</h1>
+<h2>Antes de começar</h2>
+<p>Conclua a instalação. Deixe abertos dois terminais na pasta do pacote e, no caminho Docker, a tela do navegador. Comandos <code>docker compose exec</code> são digitados no terminal do <strong>seu computador</strong>, não na barra de endereço do navegador nem no console do Python.</p>
+<h2>Passo 1 — Abrir o cenário</h2>
+<p>No terminal A:</p>
+<pre><code>docker compose exec sim bash scripts/iniciar.sh</code></pre>
+<p>O terminal fica ocupado: isso é esperado. Na tela do navegador aparecerá o Gazebo com um robô azul, uma parede vermelha e uma marca verde no chão. Aguarde a cena carregar.</p>
+<p>O script usa <code>-r</code>, portanto a simulação começa rodando. Na interface, o controle Play/Pause pode interromper e retomar o tempo. A missão só avança com o tempo de simulação rodando. O sensor fica na frente do robô, voltado para a parede.</p>
+<p>Se a câmera não mostrar a cena, procure o modelo <code>robo</code> na árvore de entidades, selecione e use o recurso de mover a câmera para a seleção, disponível no menu de contexto. A navegação da câmera também pode ser feita com o mouse. Consulte o <a href="https://gazebosim.org/docs/harmonic/gui/">guia oficial da interface</a>.</p>
+<h2>Passo 2 — Conferir se o sensor funciona</h2>
+<p>No terminal B:</p>
+<pre><code>docker compose exec sim gz topic -l
+docker compose exec sim gz topic -e -t /desafio/scan</code></pre>
+<p>O primeiro comando deve incluir <code>/desafio/scan</code>, <code>/desafio/odom</code> e <code>/desafio/cmd_vel</code>. O segundo imprime mensagens continuamente; procure <code>ranges</code>, com valores próximos de <strong>2.65 m</strong> no cenário inicial. Use <strong>Ctrl+C</strong> para parar apenas essa visualização. O tópico de contato pode ficar silencioso enquanto não existe contato.</p>
+<p>Os scripts configuram <code>GZ_PARTITION=estacionamento01</code>; no Docker isso já está no ambiente. No Ubuntu direto, antes dos comandos de diagnóstico <code>gz topic</code>, execute <code>export GZ_PARTITION=estacionamento01</code> nesse terminal.</p>
+<h2>Passo 3 — Executar o código inicial</h2>
+<p>No terminal B:</p>
+<pre><code>docker compose exec sim bash scripts/executar.sh</code></pre>
+<p>O robô fica parado. O arquivo inicial retorna zero para qualquer distância. Use Ctrl+C depois de conferir; o programa envia uma parada e grava os resultados. O limite normal é 45 segundos <strong>de simulação</strong>, contados a partir da primeira leitura recebida pelo executor.</p>
+<p>Não deixe esse executor rodando ao iniciar outro. Somente um programa pode comandar o robô por vez.</p>
+<h2>Passo 4 — Demonstração do professor</h2>
+<p>Disponível apenas no pacote completo. Encerre o executor anterior e inicie uma tentativa nova pelo procedimento de reinício abaixo. No terminal B:</p>
+<pre><code>docker compose exec sim bash scripts/executar.sh --solucao professor/referencia.py --saida resultados/demo</code></pre>
+<p>Espera-se que o robô avance, reduza a velocidade e pare na faixa. A saída deve terminar com <code>&quot;status&quot;: &quot;sucesso&quot;</code>. Essa é uma <strong>expectativa a validar na máquina</strong>, não uma execução previamente comprovada neste material.</p>
+<p>A marca verde indica onde a frente do robô deve ficar; não é a posição do centro dele. A distância é medida da frente à parede. A meta é um intervalo de 0.27 a 0.33 m.</p>
+<h2>Passo 5 — Editar e repetir</h2>
+<p>Abra <code>alunos/solucao.py</code> em um editor, altere somente <code>decidir_velocidade</code>, salve e reinicie a tentativa. Não é necessário reiniciar o Docker por edição. O Python relê o arquivo ao iniciar o executor.</p>
+<p>Registre cada ensaio com um nome diferente:</p>
+<pre><code>docker compose exec sim bash scripts/executar.sh --saida resultados/grupo01-teste01</code></pre>
+<p>Arquivos existentes com o mesmo nome serão substituídos. Os resultados ficam na pasta local <code>resultados</code>, em CSV (leituras e comandos) e JSON (resumo). O CSV pode ser aberto em um editor ou importado em uma planilha.</p>
+<h2>Como reiniciar corretamente</h2>
+<p>1. No terminal B, pressione Ctrl+C se o executor ainda estiver rodando e espere o resumo final.</p>
+<p>2. No terminal A, pressione Ctrl+C para fechar o Gazebo e espere o comando terminar.</p>
+<p>3. Inicie novamente <code>docker compose exec sim bash scripts/iniciar.sh</code> no terminal A.</p>
+<p>4. Aguarde o cenário aparecer; confira que o robô voltou à posição inicial.</p>
+<p>5. Execute novamente a estratégia no terminal B.</p>
+<p>Esse procedimento recarrega o mundo, a velocidade e os relógios. Evita as ambiguidades de diferentes botões Reset da interface. Não use Reset durante uma tentativa avaliada.</p>
+<h2>Parada imediata</h2>
+<p>Ctrl+C no executor deve enviar velocidade zero. Se o programa travar ou a sessão cair, abra outro terminal e use:</p>
+<pre><code>docker compose exec sim bash scripts/parar.sh</code></pre>
+<p>Se necessário, use Pause na interface ou feche o Gazebo no terminal A. Comandos de velocidade podem persistir se um processo for encerrado abruptamente; o comando de parada não substitui encerrar um controlador ainda ativo que continue publicando movimento.</p>
+<h2>Erros frequentes</h2>
+<table>
+<tr><td>Sintoma</td><td>Verificação e ação</td></tr>
+<tr><td><code>docker: compose is not a docker command</code></td><td>Instale ou reinstale Docker Desktop; o comando Docker isolado não basta.</td></tr>
+<tr><td><code>Cannot connect to the Docker daemon</code></td><td>Abra Docker Desktop e espere o mecanismo iniciar.</td></tr>
+<tr><td><code>no configuration file provided</code></td><td>Abra o terminal na pasta que contém <code>compose.yaml</code>.</td></tr>
+<tr><td>Navegador não conecta</td><td>Execute <code>docker compose ps</code> e <code>docker compose logs --tail 80 sim</code>; confira a porta 6080.</td></tr>
+<tr><td><code>port is already allocated</code></td><td>Há outro serviço usando 6080. Encerre a instância anterior ou altere somente o primeiro 6080 em <code>compose.yaml</code> e use a nova porta no navegador.</td></tr>
+<tr><td>Área de trabalho vazia</td><td>Inicie <code>scripts/iniciar.sh</code>; a área de trabalho sozinha não inicia a simulação.</td></tr>
+<tr><td>Tela preta ou erro Ogre/OpenGL</td><td>Confira <code>docker compose exec sim glxinfo -B</code>. A renderização por software deve estar disponível. Não desative o sistema Sensors para esconder o erro: o sensor deixaria de funcionar. Tente Ubuntu nativo se o perfil gráfico não funcionar.</td></tr>
+<tr><td>Robô parado com código inicial</td><td>É o comportamento esperado de <code>return 0.0</code>.</td></tr>
+<tr><td>Robô parado com referência</td><td>Verifique Play, mensagens <code>/desafio/scan</code>, importações Python e se há dois controladores ativos.</td></tr>
+<tr><td><code>ModuleNotFoundError: gz</code></td><td>No Docker use os comandos fornecidos. No Ubuntu use <code>/usr/bin/python3</code>, com os pacotes do instalador; não use ambiente Conda ou virtualenv sem configurar os bindings.</td></tr>
+<tr><td><code>sem_sensor_ou_odometria</code></td><td>Verifique a simulação, os tópicos, o carregamento dos plugins e o estado Play.</td></tr>
+<tr><td><code>sensor_ou_simulacao_sem_atualizacao</code></td><td>Houve pausa, perda de mensagens ou máquina muito lenta por mais de 3 s reais. Reinicie; não conte como erro algorítmico sem investigar.</td></tr>
+<tr><td>Erro de sintaxe no aluno</td><td>Confira dois-pontos, indentação e se o retorno é um número.</td></tr>
+<tr><td>Muito lento ou sem janela no Mac ARM</td><td>Atualize o pacote e reconstrua com <code>docker compose up -d --build</code>. A versão corrigida usa ARM nativo. Confira <code>docker compose exec sim uname -m</code>: deve ser <code>aarch64</code> em Apple Silicon.</td></tr>
+</table>
+<p>Para depurar a construção: <code>docker compose build --progress plain</code>. Copie a primeira mensagem de erro relevante, o sistema operacional e o tipo de processador ao pedir ajuda.</p></section><section id="cap2"><h1>Desafio 01 — Estacionamento de precisão</h1>
+<h2>Missão</h2>
+<p>Vocês programarão um robô que se aproxima de uma parede e estaciona sem encostar. A cada leitura do sensor, o programa deve decidir com que velocidade avançar. O robô já está alinhado; não é necessário fazer curvas.</p>
+<p><strong>Sucesso:</strong> distância frontal entre <strong>0.27 e 0.33 m</strong>, velocidade medida de no máximo <strong>0.01 m/s</strong>, comando zero e permanência nessas condições por <strong>2 segundos de simulação</strong>, sem colisão durante a tentativa. O limite é <strong>45 segundos de simulação</strong>. O cronômetro da tentativa começa na primeira leitura recebida pelo executor.</p>
+<p>O objetivo principal é escrever uma estratégia compreensível, testar hipóteses e explicar as escolhas. A instalação será conferida antes da avaliação.</p>
+<h2>Organização</h2>
+<p>Grupos de 3 ou 4 integrantes. Alternem quem edita o código, quem executa e registra os ensaios e quem revisa o raciocínio. Todos devem conseguir explicar a solução.</p>
+<p>Pré-requisitos: variáveis, operações aritméticas, <code>if</code>/<code>elif</code>/<code>else</code>, funções, parâmetros e <code>return</code>. O executor já contém a repetição que chama a função continuamente. Não é necessário escrever código de comunicação com o Gazebo.</p>
+<h2>O que editar</h2>
+<p>Somente <code>alunos/solucao.py</code>, na função:</p>
+<pre><code>def decidir_velocidade(distancia):
+    return 0.0</code></pre>
+<p class="item">• <code>distancia</code> é um número em <strong>metros</strong>, medido da frente do robô até a parede.</p>
+<p class="item">• Retorne uma velocidade entre <strong>0.0 e 0.5 m/s</strong>.</p>
+<p class="item">• <code>0.0</code> significa parar. Valores maiores significam avançar mais depressa.</p>
+<p class="item">• Não há marcha a ré neste desafio. Se passar da faixa, reinicie e corrija a estratégia.</p>
+<p class="item">• A função é chamada a cada nova leitura, aproximadamente 20 vezes por segundo de simulação.</p>
+<p class="item">• A função deve retornar rapidamente. Não coloque <code>input()</code>, <code>sleep()</code> ou um laço infinito nela.</p>
+<p>Exemplo de interpretação das unidades: 0.80 m são 80 cm; 0.30 m são 30 cm; 0.03 m são 3 cm. A velocidade pedida é em metros por segundo, não uma porcentagem da potência do motor.</p>
+<h2>Regras</h2>
+<p>1. A decisão deve usar a distância recebida. Não use espera por tempo fixo, contagem de chamadas ou coordenadas conhecidas da parede.</p>
+<p>2. Não altere o mundo, os sensores, a infraestrutura ou os limites de velocidade para realizar a avaliação.</p>
+<p>3. Não envie comandos por outro programa enquanto o executor estiver ativo.</p>
+<p>4. Toda tentativa começa com o mundo recarregado pelo procedimento do guia.</p>
+<p>5. Registre pelo menos cinco ensaios e explique pelo menos duas mudanças feitas na estratégia.</p>
+<p>6. Declare materiais consultados e ferramentas usadas, conforme a política da disciplina.</p>
+<h2>Etapas sugeridas</h2>
+<p><strong>Etapa 1 — Entender.</strong> Execute o programa inicial e explique por que ele fica parado. Observe a leitura do sensor e localize as unidades.</p>
+<p><strong>Etapa 2 — Primeira estratégia.</strong> Façam o robô avançar enquanto estiver longe e parar perto da meta. Escolham uma velocidade inicial conservadora.</p>
+<p><strong>Etapa 3 — Melhorar.</strong> Investiguem se vale a pena reduzir a velocidade perto da parede. A frenagem não é instantânea; o robô pode continuar se movendo depois de receber zero.</p>
+<p><strong>Etapa 4 — Testar.</strong> Repitam os ensaios com nomes diferentes de saída e comparem o tempo simulado e a distância final. Identifiquem o que mudou e o efeito observado.</p>
+<p><strong>Etapa 5 — Explicar.</strong> Preparem uma demonstração de até 5 minutos e a ficha do grupo preenchida.</p>
+<h2>Níveis de realização</h2>
+<p class="item">• <strong>Essencial:</strong> cumprir a missão no cenário de treino.</p>
+<p class="item">• <strong>Robusto:</strong> cumprir também em três cenários com distâncias iniciais diferentes, mantendo o robô alinhado e o sensor sem ruído.</p>
+<p class="item">• <strong>Eficiente:</strong> reduzir o tempo sem perder precisão ou robustez.</p>
+<p>Não serão introduzidos giros, obstáculos laterais, falhas de sensor ou ruído surpresa nesta avaliação. Extensões desse tipo são atividades separadas.</p>
+<h2>Entrega</h2>
+<p class="item">• Arquivo <code>alunos/solucao.py</code>, com nomes de todos os integrantes em comentário.</p>
+<p class="item">• Ficha do grupo preenchida, com tabela de pelo menos cinco ensaios.</p>
+<p class="item">• CSV e JSON correspondentes aos ensaios relatados.</p>
+<p class="item">• Explicação breve das decisões e de uma limitação conhecida.</p>
+<p class="item">• Demonstração e explicação individual de uma parte da estratégia.</p>
+<h2>Avaliação — 10 pontos</h2>
+<table>
+<tr><td>Critério</td><td>Pontos</td><td>Evidência</td></tr>
+<tr><td>Cumprimento da missão</td><td>5.0</td><td>Duas tentativas no cenário de treino; cada sucesso vale 2.5.</td></tr>
+<tr><td>Robustez</td><td>2.0</td><td>Uma tentativa em cada uma de três variações: 0, 1, 2 ou 3 sucessos valem 0, 0.7, 1.3 ou 2.0.</td></tr>
+<tr><td>Clareza, experimentação e explicação</td><td>2.0</td><td>Código compreensível, registros e justificativas: 1.0; explicação individual: 1.0.</td></tr>
+<tr><td>Eficiência</td><td>1.0</td><td>Entre tentativas bem-sucedidas de treino: média até 15 s vale 1.0; acima de 15 até 25 s vale 0.5; acima de 25 s vale 0. Sem sucesso: 0.</td></tr>
+</table>
+<p>Os limites de eficiência devem ser confirmados pelo professor no piloto e publicados antes da atividade. Problemas de instalação ou interrupções comprovadas do simulador serão tratados como incidentes e terão a tentativa refeita.</p></section><section id="cap3"><h1>Ficha do grupo — Estacionamento de precisão</h1>
+<p><strong>Turma:</strong> ____________________ <strong>Grupo:</strong> ______ <strong>Data:</strong> __________</p>
+<p><strong>Integrantes:</strong> __________________________________________________</p>
+<p><strong>Computador/sistema usado:</strong> ______________________________________</p>
+<h2>Antes dos testes</h2>
+<p>1. Qual é a faixa de distância aceita, em metros e em centímetros?</p>
+<p>2. O que representa a entrada da função? O que representa o retorno?</p>
+<p>3. Como a estratégia decide entre avançar e parar?</p>
+<p>4. Qual resultado vocês esperam no primeiro ensaio? Por quê?</p>
+<h2>Registro de experimentos</h2>
+<p>Use o tempo do relatório do simulador. Guarde os CSV/JSON com os mesmos nomes anotados abaixo. Identifique a versão do código de cada ensaio para relacionar mudanças e resultados.</p>
+<table>
+<tr><td>Ensaio / nome dos arquivos</td><td>Versão e mudança realizada</td><td>Distância final (m)</td><td>Tempo simulado (s)</td><td>Status</td><td>Interpretação</td></tr>
+<tr><td>1</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>2</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>3</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>4</td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>5</td><td></td><td></td><td></td><td></td><td></td></tr>
+</table>
+<h2>Análise final</h2>
+<p>1. Descrevam duas mudanças realizadas e as evidências de seus efeitos.</p>
+<p>2. Houve diferença entre mandar parar e estar parado? Como perceberam?</p>
+<p>3. Por que a solução deve funcionar com outra distância inicial?</p>
+<p>4. Qual limitação da estratégia vocês identificaram?</p>
+<p>5. Quem desempenhou cada papel? Como os papéis foram alternados?</p>
+<p>6. Quais fontes ou ferramentas foram usadas?</p>
+<h2>Conferência da entrega</h2>
+<p class="item">• [ ] Código final com nomes dos integrantes.</p>
+<p class="item">• [ ] Pelo menos cinco ensaios documentados.</p>
+<p class="item">• [ ] Arquivos CSV e JSON dos ensaios.</p>
+<p class="item">• [ ] Ficha respondida.</p>
+<p class="item">• [ ] Todos preparados para explicar uma decisão do programa.</p></section></main></html>

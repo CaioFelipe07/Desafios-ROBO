@@ -1,0 +1,12 @@
+name: desafio-estacionamento
+services:
+  sim:
+    build:
+      context: .
+      dockerfile: infra/Dockerfile
+    ports:
+      - "127.0.0.1:6080:6080"
+    volumes:
+      - .:/atividade
+    shm_size: 1gb
+    init: true

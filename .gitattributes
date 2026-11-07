@@ -1,2 +1,8 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Trata ficheiros de texto como LF no repositório e no disco
+* text=auto eol=lf
+*.sh text eol=lf
+Dockerfile text eol=lf
+
